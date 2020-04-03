@@ -5,6 +5,11 @@ from google.appengine.ext import ndb
 import os
 
 from user import User
+from create import Create
+from display import Display
+
+
+
 
 
 
@@ -23,6 +28,7 @@ class MainPage(webapp2.RequestHandler):
 		welcome = 'Welcome back'
 		search_url = ''
 		search_url_string = ''
+		taskBoards = ''
 		
 		user = users.get_current_user()
 
@@ -30,14 +36,19 @@ class MainPage(webapp2.RequestHandler):
 		if user:
 			url = users.create_logout_url(self.request.uri)
 			url_string = 'logout'
-
+			myuser =''
 			myuser_key = ndb.Key('User',  user.user_id() )
 			myuser = myuser_key.get()
+			taskBoards = ndb.get_multi(myuser.taskBoards)
+
 
 			if  myuser == None:
 				welcome = 'Welcome to the Task Mangement System'
 				myuser = User(id = user.user_id(), email_address = user.email())
 				myuser.put()
+				
+
+
 
 		else:
 
@@ -50,7 +61,9 @@ class MainPage(webapp2.RequestHandler):
 		template_values = {
 		    'url'  : url,
 		    'url_string' : url_string,
-		    'user' : user,
+		    'myuser' : myuser,
+		    'user': user,
+		    'taskBoards' : taskBoards,
 		    'welcome' : welcome
 		}
 
@@ -59,7 +72,9 @@ class MainPage(webapp2.RequestHandler):
 
 # starts the web application we specify the full routing table here as well
 app = webapp2.WSGIApplication([
-	('/', MainPage)
+	('/', MainPage),
+	('/create', Create),
+	('/display', Display)
 ], debug=True)
 	
 	

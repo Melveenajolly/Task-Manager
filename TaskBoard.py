@@ -3,5 +3,7 @@ from task import Task
 from user import User
 
 class TaskBoard (ndb.Model):
-	users = ndb.StructuredProperty(User, repeated=True)
+	name = ndb.StringProperty()
+	creator = ndb.KeyProperty(kind ="User")
 	tasks = ndb.StructuredProperty(Task, repeated=True)
+	

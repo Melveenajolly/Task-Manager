@@ -1,5 +1,27 @@
-import webapp2
-import jinja2
-import os
-from google.appengine.api import users
-from google.appengine.ext import ndb
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Create Task Board</title>
+    </head>
+    <body>
+        <h2><strong><u>Create Task Board</u></strong></h2>
+
+        <form method="post" action="/create">
+            Name of the Task Board: <br/><input type="text" name="taskboard_name" value="" required style="margin-left: :5px" />
+            <br/>
+            <br/>
+            <input type="submit" value="Create" name="button"/>
+            
+        </form>
+        <form method="post" action="/create">
+            <input type="submit" value="Back" name="button"/>
+        </form>
+
+    </body>
+</html>
+            
+            
+        
+
+       
+            
