@@ -5,5 +5,6 @@ from user import User
 class TaskBoard (ndb.Model):
 	name = ndb.StringProperty()
 	creator = ndb.KeyProperty(kind ="User")
-	tasks = ndb.StructuredProperty(Task, repeated=True)
+	tasks = ndb.KeyProperty(kind ="Task", repeated=True)
+	invited_users  =  ndb.KeyProperty(kind ="User", repeated=True)
 	

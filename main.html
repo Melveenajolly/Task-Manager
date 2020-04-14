@@ -7,7 +7,15 @@
 		<h2>Task Management System</h2>
 		{% if user %}
 		<h3>{{ welcome }} {{ user.email() }}</h3>
-		<h4><strong><u>My Boards </u></strong></h4>
+		
+		<form method="post" action="/">
+            Create a new Task Borad: <br/><input type="text" name="taskboard_name" placeholder="Name" value="" required style="margin-left: :5px" />
+            <br/>
+            <br/>
+            <input type="submit" value="Create" name="button"/>
+        </form>
+            
+		<h4><strong><u>Task Boards </u></strong></h4>
 		{% if taskBoards %}
 	      {% for i in taskBoards %}
 			<a href='/display?key_name={{i.key.urlsafe()}}'><p> &#8226; {{i.name}}</p></a>
@@ -15,19 +23,18 @@
 		{% else %}
 		<p>No Task bords</p>
 		{% endif %}
-		<h4><strong><u>Other Boards</u> </strong></h4>
-		<h4>To create a Task Board <a href='/create'>click here</a></h4>
 		
 		{% else %}
 		<h3>Hello guest welcome to the Task Management System</h3>
 		{% endif %}
 		<h4>You can {{ url_string }} <a href='{{ url }}'>here</a></h4>
-
-
 		
 	</body>
-
-
 		
 
 </html>
+
+		
+
+
+		

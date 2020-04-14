@@ -5,11 +5,8 @@ from google.appengine.ext import ndb
 import os
 
 from user import User
-from create import Create
 from display import Display
-
-
-
+from taskboard import TaskBoard
 
 
 
@@ -32,21 +29,27 @@ class MainPage(webapp2.RequestHandler):
 		
 		user = users.get_current_user()
 
-
+		myuser = None
 		if user:
 			url = users.create_logout_url(self.request.uri)
 			url_string = 'logout'
 			myuser =''
 			myuser_key = ndb.Key('User',  user.user_id() )
 			myuser = myuser_key.get()
-			taskBoards = ndb.get_multi(myuser.taskBoards)
+			# if myuser:
+			# 	taskBoards = ndb.get_multi (myuser.taskBoards)
+			
 
 
 			if  myuser == None:
 				welcome = 'Welcome to the Task Mangement System'
 				myuser = User(id = user.user_id(), email_address = user.email())
 				myuser.put()
-				
+				taskBoards = ndb.get_multi (myuser.taskBoards)
+
+
+			taskBoards = ndb.get_multi (myuser.taskBoards)			
+
 
 
 
@@ -70,11 +73,37 @@ class MainPage(webapp2.RequestHandler):
 		template = JINJA_ENVIRONMENT.get_template('main.html')
 		self.response.write(template.render(template_values))
 
+
+	def post(self):
+		self.response.headers['Content-Type'] = 'text/html'
+		template_values = {}
+
+		user = users.get_current_user()
+        
+		if self.request.get('button') == 'Create':
+			if user:
+				usr = ndb.Key("User", user.user_id()).get()
+               
+				task_board = TaskBoard()
+				task_board.name = self.request.get('taskboard_name')
+				task_board.creator = usr.key
+                
+				task_board.put()
+				usr.taskBoards.append(task_board.key)
+				usr.put()
+				self.redirect('/')
+		if self.request.get('button') == 'Back':
+			self.redirect('/')
+
+		template = JINJA_ENVIRONMENT.get_template('main.html')
+		self.response.write(template.render(template_values))
+               
+
 # starts the web application we specify the full routing table here as well
 app = webapp2.WSGIApplication([
 	('/', MainPage),
-	('/create', Create),
 	('/display', Display)
+	
 ], debug=True)
 	
 	
