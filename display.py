@@ -59,6 +59,7 @@ class Display (webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'text/html'
         msg =''
         added_user=''
+        template_values={}
         current_tb_key = ndb.Key (urlsafe=self.request.get('current_tb_key'))
         current_tb= current_tb_key.get()
         user = users.get_current_user()
@@ -67,14 +68,10 @@ class Display (webapp2.RequestHandler):
         total_user = total_user.fetch()
         exits = False
         b = self.request.get('button')
-        checked_value = self.request.get('completed')
-        if checked_value:
-            #it is checked
-            checked_task_key = ndb.Key(urlsafe = checked_value)
-            checked_task = checked_task_key.get()
-
-            # checked_task.completion_date = datetime.datetime.now()
-            # self.response.write(completion_date.strptime("%Y"))
+        owner_user = self.request.get('owner_user')
+        if owner_user:
+            owner_user = ndb.Key(urlsafe= owner_user)
+        
 
 
         if b == 'Invite':
@@ -91,8 +88,6 @@ class Display (webapp2.RequestHandler):
                 self.redirect('/')
 
         elif b == 'Add':
-            owner_user = self.request.get('owner_user')
-            owner_user = ndb.Key(urlsafe= owner_user)
             exists = False
             task = Task()
             if len(self.request.get('title').strip()) > 0:
@@ -146,8 +141,74 @@ class Display (webapp2.RequestHandler):
                     }
                     template = JINJA_ENVIRONMENT.get_template ('display.html')
                     self.response.write (template.render (template_values))
-        else:
-            self.redirect('/')
+
+        elif b == 'Rename':
+            Name = self.request.get('Name')
+            current_tb.name = Name
+            current_tb.put()
+            msg = ''
+            template_values = {
+            'msg':msg,
+            'key_name' : current_tb_key.urlsafe(),
+            'current_tb_key' : current_tb_key.urlsafe(),
+            'current_tb':current_tb,
+            'user':user,
+            'owner_user': owner_user,
+            'member_users':member_users,
+            'total_user':total_user
+                        
+            }
+            template = JINJA_ENVIRONMENT.get_template ('display.html')
+            self.response.write (template.render (template_values))
+
+
+
+        #delete button
+        if self.request.get('button') == 'Delete':
+            task_key = self.request.get('task_key')
+            task_key = ndb.Key(urlsafe = task_key)
+            task_key.delete()
+            current_tb.tasks.remove(task_key)
+            current_tb.put()
+            template_values = {
+                'msg':msg,
+                'key_name' : current_tb_key.urlsafe(),
+                'current_tb_key' : current_tb_key.urlsafe(),
+                'current_tb':current_tb,
+                'user':user,
+                'owner_user': owner_user,
+                'member_users':member_users,
+                'total_user':total_user
+                        
+            }
+            template = JINJA_ENVIRONMENT.get_template ('display.html')
+            self.response.write (template.render (template_values))
+
+        #checked tasks
+        checked_value = self.request.get('completed')
+        
+        if checked_value:
+            #it is checked
+            checked_task_key = ndb.Key(urlsafe = checked_value)
+            checked_task = checked_task_key.get()
+            checked_task.checked = True
+            checked_task.completion_date = datetime.now()
+            checked_task.put()
+            template_values = {
+                'msg':msg,
+                'key_name' : current_tb_key.urlsafe(),
+                'current_tb_key' : current_tb_key.urlsafe(),
+                'current_tb':current_tb,
+                'user':user,
+                'owner_user': owner_user,
+                'member_users':member_users,
+                'total_user':total_user
+                        
+            }
+            template = JINJA_ENVIRONMENT.get_template ('display.html')
+            self.response.write (template.render (template_values))
+        # else:
+        #     self.redirect('/')
 
 
 

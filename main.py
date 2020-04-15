@@ -7,7 +7,7 @@ import os
 from user import User
 from display import Display
 from taskboard import TaskBoard
-
+from edit import Edit
 
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -102,7 +102,8 @@ class MainPage(webapp2.RequestHandler):
 # starts the web application we specify the full routing table here as well
 app = webapp2.WSGIApplication([
 	('/', MainPage),
-	('/display', Display)
+	('/display', Display),
+	('/edit', Edit)
 	
 ], debug=True)
 	

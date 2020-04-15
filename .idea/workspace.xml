@@ -3,11 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="d78bf76c-fe06-4465-bfe0-f98991142a97" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TaskBoard.py" beforeDir="false" afterPath="$PROJECT_DIR$/TaskBoard.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/create.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/display.html" beforeDir="false" afterPath="$PROJECT_DIR$/display.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/display.py" beforeDir="false" afterPath="$PROJECT_DIR$/display.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/main.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.py" beforeDir="false" afterPath="$PROJECT_DIR$/task.py" afterDir="false" />
     </list>
@@ -45,9 +42,9 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="0" y="0" key="com.intellij.ide.util.TipDialog" timestamp="1586796574424">
+    <state x="0" y="0" key="com.intellij.ide.util.TipDialog" timestamp="1586955429260">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state x="0" y="0" key="com.intellij.ide.util.TipDialog/0.0.1280.680@0.0.1280.680" timestamp="1586796574424" />
+    <state x="0" y="0" key="com.intellij.ide.util.TipDialog/0.0.1280.680@0.0.1280.680" timestamp="1586955429260" />
   </component>
 </project>

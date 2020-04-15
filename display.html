@@ -9,7 +9,7 @@
                     {{i}}
                 {% endfor %}
  -->
-        {{current_tb}}
+       <!--  {{current_tb}} -->
 
 
         <h1><strong><u>{{current_tb.name}}</u></strong></h1>
@@ -28,20 +28,46 @@
 
     
     {% for i in current_tb.tasks %}
+
     <tr>
         <td>{{ i.get().title }}</td>
         <td>{{ i.get().due_date }}</td>
+        <td>
         <form method="post" action="/display?current_tb_key = {{current_tb_key}}" id = "form1">
-        <td><input type="checkbox" name="completed" value="{{ i.urlsafe() }}" onchange="document.getElementById('form1').submit()" /></td>
-         <input type="text" value="{{current_tb_key}}" name="current_tb_key"/>
-    </form>
+        {% if i.get().checked == False %}
+            <input type="checkbox" name="completed" value="{{ i.urlsafe() }}" onchange="this.form.submit()" /> {{i.get().completion_date}}
+        {% else %}
+              {{i.get().completion_date}}
+        <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
+        <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
+        </form>
+        </td>
+        {% endif %}    
         {% if i.get().assigned_to != None %}
         <td>{{ i.get().assigned_to.get().email_address }}</td>
         {% else %}
         <td>None</td>
         {% endif %}
-         </tr>
-        {% endfor %}
+        <td border=0><form method="post" action="/display?current_tb_key = {{current_tb_key}}&task_key = {{i.urlsafe()}}" id = "form2">
+            <input type="hidden" value="{{i.urlsafe()}}" name="task_key"/>
+            
+            <input type="submit" value="Delete" name="button"/>
+            <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
+            <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
+        </form>
+        </td>
+        <td border=0><form method="post" action="/edit?current_tb_key = {{current_tb_key}}" id = "form2">
+            <input type="hidden" value="{{i.urlsafe()}}" name="task_key"/>
+           
+           <input type="submit" value="Edit" name="button"/> 
+           <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
+            <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
+        </form>
+        </td>
+
+    </tr>
+         
+    {% endfor %}
 
    
 
@@ -78,7 +104,7 @@
                 {% endfor %}
                 </select>
                 
-                </select>
+            
                    
             <br/>
             <br/>
@@ -90,6 +116,22 @@
         {% if msg %}
         {{msg}}
         {% endif %}
+        <br/>
+
+         <form method="post" action="/display">
+            <h3>Rename the Task Board:</h3><input type="text" name="Name" value="" required style="margin-left: :5px" />
+            
+            <br/>
+            <br/>
+            <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
+            <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
+            <input type="submit" value="Rename" name="button"/>
+            <input type="submit" value="Cancel" name="button"/>
+        </form>
+            
+                
+            
+                   
 
      
       <br/>

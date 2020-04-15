@@ -1,0 +1,45 @@
+
+<html>
+    <head>
+        <meta charset="utf-8"/>
+       
+    </head>
+    <body>
+    	<h2><strong><u>Edit the task </u></strong></h2>
+
+    	<form method="post" action="/edit?task_key={{task_key}}">
+            Title: <br/><input type="text" name="title" value="{{task.title}}" required style="margin-left: :5px" />
+            <br/>
+
+            Due date: <br/> <input type="date" name="due_date" value="{{task.due_date}}" required style="margin-top: :100px" />
+            <br/>
+            <br/>
+            <label for="assign_user"><b>Assign the task for a user:</b></label>
+              <select id="userform" name="assign_user" >
+                <option value="{{task.assigned_to.urlsafe()}}">{{task.assigned_to.get().email_address}}</option>
+                <option value="{{owner_user.urlsafe()}}">{{ owner_user.get().email_address }}</option>
+                {% for i in member_users %}
+
+                    <option value="{{ i.key.urlsafe()}}">{{ i.email_address }}</option>
+                 
+                {% endfor %}
+                <option value="None">None</option>
+                </select>
+
+             <br/>
+             <br/>
+            <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
+            <input type="submit" value="Update" name="button"/>
+            <input type="submit" value="Cancel" name="button"/>
+        </form>
+            
+            
+                
+            
+                   
+            
+
+    </body>
+</html>
+
+
