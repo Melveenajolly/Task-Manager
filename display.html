@@ -31,13 +31,13 @@
 
     <tr {% if i.get().assigned_to == None %} bgcolor="#FF0000" {% endif %} >
         <td>{{ i.get().title }}</td>
-        <td>{{ i.get().due_date }}</td>
+        <td>{{ i.get().due_date.strftime("%d/%m/%Y ") }}</td>
         <td>
         <form method="post" action="/display?current_tb_key = {{current_tb_key}}" id = "form1">
         {% if i.get().checked == False %}
             <input type="checkbox" name="completed" value="{{ i.urlsafe() }}" onchange="this.form.submit()" /> 
         {% else %}
-              {{i.get().completion_date}}
+              {{i.get().completion_date.strftime("%d/%m/%Y %H:%M:%S")}}
         <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
         <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
         </form>
@@ -48,7 +48,7 @@
         {% else %}
         <td>None</td>
         {% endif %}
-        <td border=0><form method="post" action="/display?current_tb_key = {{current_tb_key}}&task_key = {{i.urlsafe()}}" id = "form2">
+        <td border=0><form method="post" action="/display?current_tb_key={{current_tb_key}}&task_key={{i.urlsafe()}}" id = "form2">
             <input type="hidden" value="{{i.urlsafe()}}" name="task_key"/>
             
             <input type="submit" value="Delete" name="button"/>
@@ -56,7 +56,7 @@
             <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
         </form>
         </td>
-        <td border=0><form method="post" action="/edit?current_tb_key = {{current_tb_key}}" id = "form2">
+        <td border=0><form method="post" action="/edit?current_tb_key={{current_tb_key}}&task_key={{i.urlsafe()}}" id = "form2">
             <input type="hidden" value="{{i.urlsafe()}}" name="task_key"/>
            
            <input type="submit" value="Edit" name="button"/> 

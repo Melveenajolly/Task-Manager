@@ -29,13 +29,16 @@ class Edit (webapp2.RequestHandler):
 			task = task_key.get()
 			owner_user = current_tb.creator
 			member_users = ndb.get_multi (current_tb.invited_users)
+			msg = self.request.get('msg')
 			
         
 			template_values = {
 			'current_tb': current_tb,
 			'current_tb_key': current_tb_key.urlsafe(),
 			'task_key': task_key.urlsafe(),
-			'task': task
+			'task': task,
+			'owner_user': owner_user,
+			'member_users': member_users
 			}
 			template = JINJA_ENVIRONMENT.get_template('edit.html')
 			self.response.write(template.render(template_values))
@@ -60,6 +63,8 @@ class Edit (webapp2.RequestHandler):
 		msg =''
 		# owner_user_key = ndb.Key (urlsafe=self.request.get('owner_user'))
 		# owner_user =owner_user_key.get()
+		if self.request.get('button') == 'Edit':
+			self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
 		if self.request.get('button') == 'Update':
 			if len(self.request.get('title').strip()) == 0:
 				error_msg = 'Invalid title'
@@ -89,32 +94,49 @@ class Edit (webapp2.RequestHandler):
 	                    elif self.request.get('assign_user') == 'None':
 	                    	task.assigned_to = None
 
+	                    checked_value = self.request.get('completed')
+	                    if checked_value == 'checked':
+	                    	task.checked = True
+	                    	task.completion_date = datetime.now()
+	                    else:
+	                    	task.checked = False
+	                    	task.completion_date = None
+
 	                    today_date = datetime.today().strftime("%Y-%m-%d")
 	                    today = datetime.strptime(today_date,"%Y-%m-%d")
 	                    if datetime.strptime(self.request.get('due_date'), "%Y-%m-%d") >= today:
 	                    	task.due_date = datetime.strptime(self.request.get('due_date'), "%Y-%m-%d")
 	                    	task_key =task.put()
 	                    	msg = "Task editted"
+	                    	self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
 	                    else:
 	                    	msg = "Enter a valid due date"
+	                    	self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
+
+
+		if self.request.get('button') == 'Back':
+			self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
+
+			# self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
+
 		                
 	                    
 
 
 
 				
-		template_values = {
-			'current_tb': current_tb,
-			'current_tb_key': current_tb_key.urlsafe(),
-			'task_key': task_key.urlsafe(),
-			'task': task,
-			'owner_user':owner_user,
-			'member_users':member_users,
-			'msg':msg
+		# template_values = {
+		# 	'current_tb': current_tb,
+		# 	'current_tb_key': current_tb_key.urlsafe(),
+		# 	'task_key': task_key.urlsafe(),
+		# 	'task': task,
+		# 	'owner_user':owner_user,
+		# 	'member_users':member_users,
+		# 	'msg':msg
 
-		}
+		# }
 		
-		template = JINJA_ENVIRONMENT.get_template ('edit.html')
-		self.response.write (template.render (template_values))
+		# template = JINJA_ENVIRONMENT.get_template ('edit.html')
+		# self.response.write (template.render (template_values))
 		
 
