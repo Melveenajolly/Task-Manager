@@ -30,6 +30,10 @@ class Display (webapp2.RequestHandler):
         user = users.get_current_user()
         board_msg = ''
         board_msg= self.request.get('board_msg')
+    
+        add_msg = self.request.get('add_msg')
+        
+
        
 
         #current taskboard
@@ -71,7 +75,9 @@ class Display (webapp2.RequestHandler):
             'completed_task':completed_task,
             'active_task':active_task,
             'completed_today':completed_today,
-            'board_msg':board_msg
+            'board_msg':board_msg,
+            'add_msg':add_msg,
+            
             
 
     	}
@@ -102,14 +108,18 @@ class Display (webapp2.RequestHandler):
 
         if b == 'Invite':
             if user.email() == current_tb.creator.get().email_address:
-                added_user_key = self.request.get('added_user')
-                added_user_key = ndb.Key(urlsafe=added_user_key)
-                added_user = added_user_key.get()
-                current_tb.invited_users.append(added_user_key)
-                current_tb.put()
-                added_user.taskBoards.append(current_tb_key)
-                added_user.put()
-                self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
+                if self.request.get('added_user') != 'None':
+                    added_user_key = self.request.get('added_user')
+                    added_user_key = ndb.Key(urlsafe=added_user_key)
+                    added_user = added_user_key.get()
+                    current_tb.invited_users.append(added_user_key)
+                    current_tb.put()
+                    added_user.taskBoards.append(current_tb_key)
+                    added_user.put()
+                    self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
+                elif self.request.get('added_user') == 'None':
+                    self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
+
             else:
                 self.redirect('/')
 
@@ -121,52 +131,51 @@ class Display (webapp2.RequestHandler):
                     for task1 in current_tb.tasks:
                         if task1.get().title == self.request.get('title'):
                             exists = True
-                            msg = "Title is already exists"
+                            add_msg = "Title is already exists"
 
                 if exists == False:
                     task.title = self.request.get('title')
 
                     # if str(datetime.datetime.today()) > task_due:
                     #    
-
+                    today_date = datetime.today().strftime("%Y-%m-%d")
+                    today = datetime.strptime(today_date,"%Y-%m-%d")
                     task.due_date = datetime.strptime(self.request.get('due_date'), "%Y-%m-%d")
+                    self.response.write(today_date)
+                    self.response.write("----------")
+                    self.response.write(datetime.strptime(self.request.get('due_date'), "%Y-%m-%d"))
                     task.checked = False
                     if self.request.get('assign_user') != 'None':
                         assigned_user_key = self.request.get('assign_user')
                         assigned_user_key = ndb.Key(urlsafe=assigned_user_key)
                         task.assigned_to = assigned_user_key
-                    task_key =task.put()
-                    current_tb.tasks.append(task_key)
-                    current_tb.put()
-                    msg = "Task added"
+                    if task.due_date >= today:
+                        task_key =task.put()
+                        current_tb.tasks.append(task_key)
+                        current_tb.put()
+                        add_msg = "Task added"
+                        
+                    else:
+                        add_msg = "Enter a valid due date"
+                    self.redirect('/display?key_name=' + str(current_tb_key.urlsafe())+'&add_msg=' +add_msg)
 
-                    template_values = {
-                        'msg':msg,
-                        'key_name' : current_tb_key.urlsafe(),
-                        'current_tb_key' : current_tb_key.urlsafe(),
-                        'current_tb':current_tb,
-                        'user':user,
-                        'owner_user': owner_user,
-                        'member_users':member_users,
-                        'total_user':total_user
+                    # template_values = {
+                    #     'msg':msg,
+                    #     'key_name' : current_tb_key.urlsafe(),
+                    #     'current_tb_key' : current_tb_key.urlsafe(),
+                    #     'current_tb':current_tb,
+                    #     'user':user,
+                    #     'owner_user': owner_user,
+                    #     'member_users':member_users,
+                    #     'total_user':total_user
                         
-                    }
-                    template = JINJA_ENVIRONMENT.get_template ('display.html')
-                    self.response.write (template.render (template_values))
+                    # }
+                    # template = JINJA_ENVIRONMENT.get_template ('display.html')
+                    # self.response.write (template.render (template_values))
                 else:
-                    template_values = {
-                        'msg':msg,
-                        'key_name' : current_tb_key.urlsafe(),
-                        'current_tb_key' : current_tb_key.urlsafe(),
-                        'current_tb':current_tb,
-                        'user':user,
-                        'owner_user': owner_user,
-                        'member_users':member_users,
-                        'total_user':total_user
-                        
-                    }
-                    template = JINJA_ENVIRONMENT.get_template ('display.html')
-                    self.response.write (template.render (template_values))
+                    self.redirect('/display?key_name=' + str(current_tb_key.urlsafe())+'&add_msg=' +add_msg)
+        
+
 
         elif b == 'Rename':
             if len(self.request.get('Name').strip()) > 0:
@@ -199,9 +208,11 @@ class Display (webapp2.RequestHandler):
         if self.request.get('button') == 'Delete':
             task_key = self.request.get('task_key')
             task_key = ndb.Key(urlsafe = task_key)
-            task_key.delete()
+            
             current_tb.tasks.remove(task_key)
             current_tb.put()
+            task_key.delete()
+            
             template_values = {
                 'msg':msg,
                 'key_name' : current_tb_key.urlsafe(),
@@ -284,7 +295,9 @@ class Display (webapp2.RequestHandler):
         if  self.request.get('button') == 'Remove the Task Board':
             tasks = ndb.get_multi(current_tb.tasks)
             if len(member_users) == 0 and len(tasks) ==0:
-                owner_user.get().taskBoards.remove(current_tb_key)
+                ou = owner_user.get()
+                ou.taskBoards.remove(current_tb_key)
+                ou.put()
                 current_tb_key.delete()
                 
                 self.redirect('/')

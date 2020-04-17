@@ -80,7 +80,7 @@ class Edit (webapp2.RequestHandler):
 
 	                      
 
-	                    task.due_date = datetime.strptime(self.request.get('due_date'), "%Y-%m-%d")
+	                    
 	                    
 	                    if self.request.get('assign_user') != 'None':
 	                        assigned_user_key = self.request.get('assign_user')
@@ -89,9 +89,18 @@ class Edit (webapp2.RequestHandler):
 	                    elif self.request.get('assign_user') == 'None':
 	                    	task.assigned_to = None
 
-	                    task_key =task.put()
+	                    today_date = datetime.today().strftime("%Y-%m-%d")
+	                    today = datetime.strptime(today_date,"%Y-%m-%d")
+	                    if datetime.strptime(self.request.get('due_date'), "%Y-%m-%d") >= today:
+	                    	task.due_date = datetime.strptime(self.request.get('due_date'), "%Y-%m-%d")
+	                    	task_key =task.put()
+	                    	msg = "Task editted"
+	                    else:
+	                    	msg = "Enter a valid due date"
+		                
 	                    
-	                    msg = "Task editted"
+
+
 
 				
 		template_values = {
