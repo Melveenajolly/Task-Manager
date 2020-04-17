@@ -67,7 +67,8 @@ class MainPage(webapp2.RequestHandler):
 		    'myuser' : myuser,
 		    'user': user,
 		    'taskBoards' : taskBoards,
-		    'welcome' : welcome
+		    'welcome' : welcome,
+		    
 		}
 
 		template = JINJA_ENVIRONMENT.get_template('main.html')

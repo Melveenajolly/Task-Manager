@@ -21,9 +21,15 @@ class Display (webapp2.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'text/html'
         template_values = {}
+        total_task_count = 0
+        completed_task = 0
+        active_task = 0
+        completed_today = 0
 
         #owner of taskboard
         user = users.get_current_user()
+        board_msg = ''
+        board_msg= self.request.get('board_msg')
        
 
         #current taskboard
@@ -31,6 +37,21 @@ class Display (webapp2.RequestHandler):
         current_tb = current_tb_key.get()
         owner_user = current_tb.creator
         member_users = ndb.get_multi (current_tb.invited_users)
+        total_task = ndb.get_multi(current_tb.tasks)
+
+        for i in total_task:
+            total_task_count = total_task_count + 1
+            if i.checked == True:
+                completed_task = completed_task + 1
+            if i.checked == False:
+                active_task = active_task + 1
+            if i.completion_date != None:
+                if i.completion_date.strftime("%Y-%m-%d") == datetime.now().strftime("%Y-%m-%d"):
+                    completed_today = completed_today + 1
+
+            
+
+
 
 
         # fetching total users to list for radiobutton in display page
@@ -46,6 +67,11 @@ class Display (webapp2.RequestHandler):
             'total_user': total_user,
             'user': user,
             'member_users': member_users,
+            'total_task_count':total_task_count,
+            'completed_task':completed_task,
+            'active_task':active_task,
+            'completed_today':completed_today,
+            'board_msg':board_msg
             
 
     	}
@@ -143,10 +169,12 @@ class Display (webapp2.RequestHandler):
                     self.response.write (template.render (template_values))
 
         elif b == 'Rename':
-            Name = self.request.get('Name')
-            current_tb.name = Name
-            current_tb.put()
-            msg = ''
+            if len(self.request.get('Name').strip()) > 0:
+                Name = self.request.get('Name')
+                current_tb.name = Name
+                current_tb.put()
+                msg = ''
+
             template_values = {
             'msg':msg,
             'key_name' : current_tb_key.urlsafe(),
@@ -160,6 +188,10 @@ class Display (webapp2.RequestHandler):
             }
             template = JINJA_ENVIRONMENT.get_template ('display.html')
             self.response.write (template.render (template_values))
+
+        
+
+
 
 
 
@@ -194,21 +226,75 @@ class Display (webapp2.RequestHandler):
             checked_task.checked = True
             checked_task.completion_date = datetime.now()
             checked_task.put()
-            template_values = {
-                'msg':msg,
-                'key_name' : current_tb_key.urlsafe(),
-                'current_tb_key' : current_tb_key.urlsafe(),
-                'current_tb':current_tb,
-                'user':user,
-                'owner_user': owner_user,
-                'member_users':member_users,
-                'total_user':total_user
+            self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
+            # template_values = {
+            #     'msg':msg,
+            #     'key_name' : current_tb_key.urlsafe(),
+            #     'current_tb_key' : current_tb_key.urlsafe(),
+            #     'current_tb':current_tb,
+            #     'user':user,
+            #     'owner_user': owner_user,
+            #     'member_users':member_users,
+            #     'total_user':total_user
                         
-            }
-            template = JINJA_ENVIRONMENT.get_template ('display.html')
-            self.response.write (template.render (template_values))
-        # else:
-        #     self.redirect('/')
+            # }
+            # template = JINJA_ENVIRONMENT.get_template ('display.html')
+            # self.response.write (template.render (template_values))
+
+        #remove user
+        if self.request.get('button') == 'Remove':
+
+            if self.request.get('removed_user') != 'None':
+                removed_user_key_1 = self.request.get('removed_user')
+                removed_user_key = ndb.Key(urlsafe= removed_user_key_1)
+                removed_user = removed_user_key.get()
+                #making the tasks of removed user unassigned
+                tasks = ndb.get_multi(current_tb.tasks)
+                for task1 in tasks:
+                    
+                    if task1.assigned_to == removed_user_key.get().key:
+                        task1.assigned_to = None
+                        task1.put()
+                #removing from invited user list
+                current_tb.invited_users.remove(removed_user_key)
+                current_tb.put()
+                member_users = ndb.get_multi (current_tb.invited_users)
+                #remove current task board from removed users taskboard list
+                removed_user.taskBoards.remove(current_tb_key)
+                removed_user.put()
+                msg = ''
+                self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
+                # template_values = {
+                #     'msg':msg,
+                #     'key_name' : current_tb_key.urlsafe(),
+                #     'current_tb_key' : current_tb_key.urlsafe(),
+                #     'current_tb':current_tb,
+                #     'user':user,
+                #     'owner_user': owner_user,
+                #     'member_users':member_users,
+                #     'total_user':total_user
+                                
+                # }
+                # template = JINJA_ENVIRONMENT.get_template ('display.html')
+                # self.response.write (template.render (template_values))
+            if self.request.get('removed_user') == 'None':
+                self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
+
+        #Removing the task board
+        if  self.request.get('button') == 'Remove the Task Board':
+            tasks = ndb.get_multi(current_tb.tasks)
+            if len(member_users) == 0 and len(tasks) ==0:
+                owner_user.get().taskBoards.remove(current_tb_key)
+                current_tb_key.delete()
+                
+                self.redirect('/')
+            else:
+                board_msg = 'Delete all the tasks and and remove all members to remove the task board '
+                self.redirect('/display?key_name=' + str(current_tb_key.urlsafe())+'&board_msg=' +board_msg)
+
+
+
+        
 
 
 

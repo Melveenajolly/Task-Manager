@@ -86,8 +86,10 @@ class Edit (webapp2.RequestHandler):
 	                        assigned_user_key = self.request.get('assign_user')
 	                        assigned_user_key = ndb.Key(urlsafe=assigned_user_key)
 	                        task.assigned_to = assigned_user_key
+	                    elif self.request.get('assign_user') == 'None':
+	                    	task.assigned_to = None
+
 	                    task_key =task.put()
-	                    
 	                    
 	                    msg = "Task editted"
 

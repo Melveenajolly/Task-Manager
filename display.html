@@ -13,7 +13,7 @@
 
 
         <h1><strong><u>{{current_tb.name}}</u></strong></h1>
-        <table border="1" style="width:75%;border-collapse:collapse">
+        <table border="1" style="width:75%;">
       <colgroup>
         <col></col>
         <col style="width:25%;text-align:center"></col>
@@ -29,7 +29,7 @@
     
     {% for i in current_tb.tasks %}
 
-    <tr>
+    <tr {% if i.get().assigned_to == None %} bgcolor="#FF0000" {% endif %} >
         <td>{{ i.get().title }}</td>
         <td>{{ i.get().due_date }}</td>
         <td>
@@ -68,21 +68,46 @@
     </tr>
          
     {% endfor %}
+    </table>
 
+    <br/>
+    {% if user.email() == owner_user.get().email_address %} 
+    <form method="post" action="/display?current_tb_key = {{current_tb_key}}" id = "form3">
+            
+            
+            <input type="submit" value="Remove the Task Board" name="button"/>
+            <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
+            <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
+        </form>
+    
+    {% if board_msg %}
+    {{board_msg}}
+    {% endif %}
+    {% endif %}
+
+     <br/>
+    <br/>
+
+    <!-- table for counter -->
+    <table border="1" style="width:16%;border-collapse:collapse">
+      <colgroup>
+        <col></col>
+        <col style="width:25%;text-align:center"></col>
+        <col style="width:25%;text-align:center"></col>
+      </colgroup>
+      <tr>
+        <td>Total Tasks tasks</td> 
+        <td>{{total_task_count}}</td> </tr>
+      <tr><td>Completed Tasks</td>  
+      <td>{{completed_task}}</td></tr>
+      <tr> <td>Active tasks</td>
+      <td>{{active_task}}</td></tr>
+      <tr> <td>Total Tasks Completed Today</td>
+      <td>{{completed_today}}</td></tr>
+  </table>
    
 
-    <!-- <tr>
-    {% for i in current_tb.tasks %}
-        <td>{{ i.get().due_date }}</td>
-        {% endfor %}
-    </tr>
-    <tr>
-    {% for i in current_tb.tasks %}
-        <td>{{ i.get().due_date }}</td>
-        {% endfor %}
-    </tr> -->
 
-    </table>
       <br/> 
       <form method="post" action="/display">
             <h3>Add a task to the board </h3>
@@ -156,6 +181,31 @@
     
     </form>
     {%endif %}
+
+
+    <br/>
+
+
+      {% if user.email() == owner_user.get().email_address %} 
+    <form method="post" action="/display">
+       <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
+       <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
+        <label for="remove_user"><b>Remove a member from the task board:</b></label>
+          <select id="userform" name="removed_user">
+            <option value="None">None</option>
+            {% for i in member_users %}
+                <option value="{{ i.key.urlsafe()}}">{{ i.email_address }}</option>
+                
+            {% endfor %}
+           </select>
+          <input type="submit" value="Remove" name= "button"/>
+    </form>
+    {%endif %}
+                
+                
+          
+          
+    
     
     </body>
 

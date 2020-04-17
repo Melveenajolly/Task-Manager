@@ -18,7 +18,13 @@
 		<h4><strong><u>Task Boards </u></strong></h4>
 		{% if taskBoards %}
 	      {% for i in taskBoards %}
+	        {% if i.creator.urlsafe() == myuser.key.urlsafe() %}
+	       
+	        <a href='/display?key_name={{i.key.urlsafe()}}'><p> &#8226; {{i.name}}</a><label style="color:#00FF00"> (Created)</label></p>
+	        {% else %}
+
 			<a href='/display?key_name={{i.key.urlsafe()}}'><p> &#8226; {{i.name}}</p></a>
+			{% endif %}
 			{% endfor %}
 		{% else %}
 		<p>No Task bords</p>

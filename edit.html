@@ -16,14 +16,20 @@
             <br/>
             <label for="assign_user"><b>Assign the task for a user:</b></label>
               <select id="userform" name="assign_user" >
+              	{% if task.assigned_to == None %}
+              	<option value="None">None</option>
+              	{%else%}
+
                 <option value="{{task.assigned_to.urlsafe()}}">{{task.assigned_to.get().email_address}}</option>
+                <option value="None">None</option>
+                {% endif %}
                 <option value="{{owner_user.urlsafe()}}">{{ owner_user.get().email_address }}</option>
                 {% for i in member_users %}
 
                     <option value="{{ i.key.urlsafe()}}">{{ i.email_address }}</option>
                  
                 {% endfor %}
-                <option value="None">None</option>
+                
                 </select>
 
              <br/>
