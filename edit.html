@@ -2,6 +2,11 @@
 <html>
     <head>
         <meta charset="utf-8"/>
+        <style>
+        body {
+          background-color: #E6E6FA;
+        }
+        </style>
        
     </head>
     <body>
@@ -25,6 +30,7 @@
                 {% endif %}
                 <option value="{{owner_user.urlsafe()}}">{{ owner_user.get().email_address }}</option>
                 {% for i in member_users %}
+                     
 
                     <option value="{{ i.key.urlsafe()}}">{{ i.email_address }}</option>
                  
@@ -47,6 +53,9 @@
         </form>
         {% if msg %}
         {{msg}}
+        {% endif %}
+        {% if error_msg %}
+        {{error_msg}}
         {% endif %}
             
             

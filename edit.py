@@ -30,6 +30,7 @@ class Edit (webapp2.RequestHandler):
 			owner_user = current_tb.creator
 			member_users = ndb.get_multi (current_tb.invited_users)
 			msg = self.request.get('msg')
+			error_msg = self.request.get('error_msg')
 			
         
 			template_values = {
@@ -64,11 +65,13 @@ class Edit (webapp2.RequestHandler):
 		# owner_user_key = ndb.Key (urlsafe=self.request.get('owner_user'))
 		# owner_user =owner_user_key.get()
 		if self.request.get('button') == 'Edit':
-			self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
+			self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) )
 		if self.request.get('button') == 'Update':
 			if len(self.request.get('title').strip()) == 0:
 				error_msg = 'Invalid title'
 				exists =True
+				self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&error_msg=' +error_msg)
+
 			else:
 				exists = False
 	            
@@ -104,6 +107,12 @@ class Edit (webapp2.RequestHandler):
 
 	                    today_date = datetime.today().strftime("%Y-%m-%d")
 	                    today = datetime.strptime(today_date,"%Y-%m-%d")
+
+	                    # if olddate == newdate
+	                    # 	no change in date so no check. just put() and redirect
+	                    # else
+	                    # 	check if newdate < today. if yes, dont put, othwesise,put adn redirect
+
 	                    if datetime.strptime(self.request.get('due_date'), "%Y-%m-%d") >= today:
 	                    	task.due_date = datetime.strptime(self.request.get('due_date'), "%Y-%m-%d")
 	                    	task_key =task.put()

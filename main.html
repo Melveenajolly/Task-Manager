@@ -2,6 +2,18 @@
 	<head>
 		<meta charset="utf-8"/>
 		<title>Task Management Sysytem</title>
+		<style>
+        body {
+          background-color: #E6E6FA;
+        }
+		 a:link, a:visited {
+		  text-decoration: none;
+		  color: #2D3A7F;
+		}
+        /*input[type=submit] {
+  		background-color: #900C3F;
+	  		}*/
+        </style>
 	</head>
 	<body>
 		<h2>Task Management System</h2>
@@ -20,10 +32,10 @@
 	      {% for i in taskBoards %}
 	        {% if i.creator.urlsafe() == myuser.key.urlsafe() %}
 	       
-	        <a href='/display?key_name={{i.key.urlsafe()}}'><p> &#8226; {{i.name}}</a><label style="color:#00FF00"> (Created)</label></p>
+	        <a href='/display?key_name={{i.key.urlsafe()}}'><h4> &#8226; {{i.name}}</a><label style="color:#900C3F"> (Created)</label></h4>
 	        {% else %}
 
-			<a href='/display?key_name={{i.key.urlsafe()}}'><p> &#8226; {{i.name}}</p></a>
+			<a href='/display?key_name={{i.key.urlsafe()}}'><h4> &#8226; {{i.name}}</h4></a>
 			{% endif %}
 			{% endfor %}
 		{% else %}

@@ -86,18 +86,23 @@ class MainPage(webapp2.RequestHandler):
 				usr = ndb.Key("User", user.user_id()).get()
                
 				task_board = TaskBoard()
-				task_board.name = self.request.get('taskboard_name')
-				task_board.creator = usr.key
-                
-				task_board.put()
-				usr.taskBoards.append(task_board.key)
-				usr.put()
+				if len(self.request.get('taskboard_name').strip()) > 0:
+					task_board.name = self.request.get('taskboard_name')
+					task_board.creator = usr.key
+	                
+					task_board.put()
+					usr.taskBoards.append(task_board.key)
+					usr.put()
+					self.redirect('/')
+				else:
+					self.redirect('/')
+			else:
 				self.redirect('/')
+
 		if self.request.get('button') == 'Back':
 			self.redirect('/')
 
-		template = JINJA_ENVIRONMENT.get_template('main.html')
-		self.response.write(template.render(template_values))
+		
                
 
 # starts the web application we specify the full routing table here as well

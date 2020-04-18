@@ -50,7 +50,7 @@ class Display (webapp2.RequestHandler):
             if i.checked == False:
                 active_task = active_task + 1
             if i.completion_date != None:
-                if i.completion_date.strftime("%d/%m/%Y") == datetime.now().strftime("%d/%m/%Y"):
+                if i.completion_date.strftime("%Y-%m-%d") == datetime.now().strftime("%Y-%m-%d"):
                     completed_today = completed_today + 1
 
             
@@ -138,12 +138,12 @@ class Display (webapp2.RequestHandler):
 
                     # if str(datetime.datetime.today()) > task_due:
                     #    
-                    today_date = datetime.today().strftime("%d/%m/%Y")
-                    today = datetime.strptime(today_date,"%d/%m/%Y")
-                    task.due_date = datetime.strptime(self.request.get('due_date'), "%d/%m/%Y")
+                    today_date = datetime.today().strftime("%Y-%m-%d")
+                    today = datetime.strptime(today_date,"%Y-%m-%d")
+                    task.due_date = datetime.strptime(self.request.get('due_date'), "%Y-%m-%d")
                     self.response.write(today_date)
                     self.response.write("----------")
-                    self.response.write(datetime.strptime(self.request.get('due_date'), "%d/%m/%Y"))
+                    self.response.write(datetime.strptime(self.request.get('due_date'), "%Y-%m-%d"))
                     task.checked = False
                     if self.request.get('assign_user') != 'None':
                         assigned_user_key = self.request.get('assign_user')
@@ -174,6 +174,9 @@ class Display (webapp2.RequestHandler):
                     # self.response.write (template.render (template_values))
                 else:
                     self.redirect('/display?key_name=' + str(current_tb_key.urlsafe())+'&add_msg=' +add_msg)
+            else:
+                add_msg = 'Invalid title'
+                self.redirect('/display?key_name=' + str(current_tb_key.urlsafe())+'&add_msg=' +add_msg)
         
 
 
@@ -183,22 +186,28 @@ class Display (webapp2.RequestHandler):
                 current_tb.name = Name
                 current_tb.put()
                 msg = ''
+        #redirect ckeyyumbol if else um redirect cheyyuka
+                self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
+            else:
+                self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
 
-            template_values = {
-            'msg':msg,
-            'key_name' : current_tb_key.urlsafe(),
-            'current_tb_key' : current_tb_key.urlsafe(),
-            'current_tb':current_tb,
-            'user':user,
-            'owner_user': owner_user,
-            'member_users':member_users,
-            'total_user':total_user
+            # template_values = {
+            # 'msg':msg,
+            # 'key_name' : current_tb_key.urlsafe(),
+            # 'current_tb_key' : current_tb_key.urlsafe(),
+            # 'current_tb':current_tb,
+            # 'user':user,
+            # 'owner_user': owner_user,
+            # 'member_users':member_users,
+            # 'total_user':total_user
                         
-            }
-            template = JINJA_ENVIRONMENT.get_template ('display.html')
-            self.response.write (template.render (template_values))
+            # }
+            # template = JINJA_ENVIRONMENT.get_template ('display.html')
+            # self.response.write (template.render (template_values))
 
         
+
+
 
 
 
@@ -212,20 +221,21 @@ class Display (webapp2.RequestHandler):
             current_tb.tasks.remove(task_key)
             current_tb.put()
             task_key.delete()
+            self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
             
-            template_values = {
-                'msg':msg,
-                'key_name' : current_tb_key.urlsafe(),
-                'current_tb_key' : current_tb_key.urlsafe(),
-                'current_tb':current_tb,
-                'user':user,
-                'owner_user': owner_user,
-                'member_users':member_users,
-                'total_user':total_user
+            # template_values = {
+            #     'msg':msg,
+            #     'key_name' : current_tb_key.urlsafe(),
+            #     'current_tb_key' : current_tb_key.urlsafe(),
+            #     'current_tb':current_tb,
+            #     'user':user,
+            #     'owner_user': owner_user,
+            #     'member_users':member_users,
+            #     'total_user':total_user
                         
-            }
-            template = JINJA_ENVIRONMENT.get_template ('display.html')
-            self.response.write (template.render (template_values))
+            # }
+            # template = JINJA_ENVIRONMENT.get_template ('display.html')
+            # self.response.write (template.render (template_values))
 
         #checked tasks
         checked_value = self.request.get('completed')
@@ -304,6 +314,10 @@ class Display (webapp2.RequestHandler):
             else:
                 board_msg = 'Delete all the tasks and and remove all members to remove the task board '
                 self.redirect('/display?key_name=' + str(current_tb_key.urlsafe())+'&board_msg=' +board_msg)
+
+
+        if self.request.get('button') == 'Back to home':
+            self.redirect('/')
 
 
 

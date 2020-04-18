@@ -1,6 +1,11 @@
 <html>
     <head>
         <meta charset="utf-8"/>
+        <style>
+        body {
+          background-color: #E6E6FA;
+        }
+        </style>
        
     </head>
     <body><!-- 
@@ -13,25 +18,30 @@
 
 
         <h1><strong><u>{{current_tb.name}}</u></strong></h1>
-        <table border="1" style="width:75%;">
+
+        {% if total_task_count != 0 %}
+        <table border="1" style="width:75%;" bgcolor="#E6E6FA">
       <colgroup>
         <col></col>
         <col style="width:25%;text-align:center"></col>
         <col style="width:25%;text-align:center"></col>
       </colgroup>
+
       <tr>
     <th>Title</th>
     <th>Due date</th>
     <th>Completed</th>
     <th>Assigned to</th>
+    <th>Delete</th>
+    <th>Edit</th>
     </tr>
 
     
     {% for i in current_tb.tasks %}
 
-    <tr {% if i.get().assigned_to == None %} bgcolor="#FF0000" {% endif %} >
-        <td>{{ i.get().title }}</td>
-        <td>{{ i.get().due_date.strftime("%d/%m/%Y ") }}</td>
+    <tr  >
+        <td {% if i.get().assigned_to == None %} bgcolor="#E2362B " {% endif %}>{{ i.get().title }} </td>
+        <td >{{ i.get().due_date.strftime("%d/%m/%Y ") }}</td>
         <td>
         <form method="post" action="/display?current_tb_key = {{current_tb_key}}" id = "form1">
         {% if i.get().checked == False %}
@@ -69,9 +79,35 @@
          
     {% endfor %}
     </table>
+    {% endif %}
+
 
     <br/>
-    {% if user.email() == owner_user.get().email_address %} 
+    
+    
+
+    <!-- table for counter -->
+    <table border="1" style="width:16%;border-collapse:collapse" bgcolor="#E6E6FA">
+      <colgroup>
+        <col></col>
+        <col style="width:25%;text-align:center"></col>
+        <col style="width:25%;text-align:center"></col>
+      </colgroup>
+      <tr>
+        <td>Total Tasks tasks</td> 
+        <td>{{total_task_count}}</td> </tr>
+      <tr><td>Completed Tasks</td>  
+      <td>{{completed_task}}</td></tr>
+      <tr> <td>Active tasks</td>
+      <td>{{active_task}}</td></tr>
+      <tr> <td> Completed Today</td>
+      <td>{{completed_today}}</td></tr>
+  </table>
+
+  <br/>
+
+
+  {% if user.email() == owner_user.get().email_address %} 
     <form method="post" action="/display?current_tb_key = {{current_tb_key}}" id = "form3">
             
             
@@ -86,25 +122,13 @@
     {% endif %}
 
      <br/>
-    <br/>
-
-    <!-- table for counter -->
-    <table border="1" style="width:16%;border-collapse:collapse">
-      <colgroup>
-        <col></col>
-        <col style="width:25%;text-align:center"></col>
-        <col style="width:25%;text-align:center"></col>
-      </colgroup>
-      <tr>
-        <td>Total Tasks tasks</td> 
-        <td>{{total_task_count}}</td> </tr>
-      <tr><td>Completed Tasks</td>  
-      <td>{{completed_task}}</td></tr>
-      <tr> <td>Active tasks</td>
-      <td>{{active_task}}</td></tr>
-      <tr> <td>Total Tasks Completed Today</td>
-      <td>{{completed_today}}</td></tr>
-  </table>
+  <form method="post" action="/display?current_tb_key = {{current_tb_key}}" id = "form3">
+            
+            
+            <input type="submit" value="Back to home" name="button"/>
+            <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
+            <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
+        </form>
    
 
 
@@ -136,7 +160,7 @@
             <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
             <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
             <input type="submit" value="Add" name="button"/>
-            <input type="submit" value="Cancel" name="button"/>
+            
 
         </form>
          {% if add_msg %}
@@ -148,13 +172,14 @@
 
          <form method="post" action="/display">
             <h3>Rename the Task Board:</h3><input type="text" name="Name" value="" required style="margin-left: :5px" />
+            <input type="submit" value="Rename" name="button"/>
             
             <br/>
             <br/>
             <input type="hidden" value="{{owner_user.urlsafe()}}" name="owner_user"/>
             <input type="hidden" value="{{current_tb_key}}" name="current_tb_key"/>
-            <input type="submit" value="Rename" name="button"/>
-            <input type="submit" value="Cancel" name="button"/>
+            
+            
         </form>
             
                 
