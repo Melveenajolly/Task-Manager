@@ -10,6 +10,7 @@
        
     </head>
     <body>
+    	
     	<h2><strong><u>Edit the task </u></strong></h2>
 
     	<form method="post" action="/edit?task_key={{task_key}}" id='new'>
@@ -30,9 +31,15 @@
                 {% endif %}
                 <option value="{{owner_user.urlsafe()}}">{{ owner_user.get().email_address }}</option>
                 {% for i in member_users %}
-                     
 
+                {% if task.assigned_to %}
+                {% if i.email_address != task.assigned_to.get().email_address%}
                     <option value="{{ i.key.urlsafe()}}">{{ i.email_address }}</option>
+                    {%endif%}
+                    {% else %}
+                    <option value="{{ i.key.urlsafe()}}">{{ i.email_address }}</option>
+                    {%endif%}
+                
                  
                 {% endfor %}
                 

@@ -7,6 +7,7 @@ from google.appengine.ext import ndb
 from taskboard import TaskBoard
 from user import User
 from datetime import datetime
+from datetime import timedelta
 from task import Task
 
 JINJA_ENVIRONMENT = jinja2.Environment (
@@ -131,7 +132,7 @@ class Display (webapp2.RequestHandler):
                     for task1 in current_tb.tasks:
                         if task1.get().title == self.request.get('title'):
                             exists = True
-                            add_msg = "Title is already exists"
+                            add_msg = "Title already exists"
 
                 if exists == False:
                     task.title = self.request.get('title')
@@ -153,7 +154,7 @@ class Display (webapp2.RequestHandler):
                         task_key =task.put()
                         current_tb.tasks.append(task_key)
                         current_tb.put()
-                        add_msg = "Task added"
+                        add_msg = "Task is added"
                         
                     else:
                         add_msg = "Enter a valid due date"
@@ -245,7 +246,7 @@ class Display (webapp2.RequestHandler):
             checked_task_key = ndb.Key(urlsafe = checked_value)
             checked_task = checked_task_key.get()
             checked_task.checked = True
-            checked_task.completion_date = datetime.now()
+            checked_task.completion_date = datetime.now() + timedelta(hours=1)
             checked_task.put()
             self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
             # template_values = {

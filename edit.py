@@ -7,6 +7,7 @@ from google.appengine.ext import ndb
 from taskboard import TaskBoard
 from user import User
 from datetime import datetime
+from datetime import timedelta
 from task import Task
 
 JINJA_ENVIRONMENT = jinja2.Environment (
@@ -39,7 +40,9 @@ class Edit (webapp2.RequestHandler):
 			'task_key': task_key.urlsafe(),
 			'task': task,
 			'owner_user': owner_user,
-			'member_users': member_users
+			'member_users': member_users,
+			'msg' : msg,
+			'error_msg' : error_msg
 			}
 			template = JINJA_ENVIRONMENT.get_template('edit.html')
 			self.response.write(template.render(template_values))
@@ -74,54 +77,49 @@ class Edit (webapp2.RequestHandler):
 
 			else:
 				exists = False
-	            
-	            
-	                if(current_tb.tasks !=None):
-	                    for task1 in current_tb.tasks:
-	                        if task1.get().title == self.request.get('title'):
-	                        	if task1 != task_key:
-		                            exists = True
-		                            msg = "Title is already exists"
 
-	                if exists == False:
-	                    task.title = self.request.get('title')
+				if len(current_tb.tasks) >0 :
+					for task1 in current_tb.tasks:
+						if task1.get().title == self.request.get('title'):
+							if task1 != task_key:
+								exists = True
+								msg = "Title already exists"
+								self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
 
-	                      
+				if exists == False:
+					task.title = self.request.get('title')
+					if self.request.get('assign_user') != 'None':
+						assigned_user_key = self.request.get('assign_user')
+						assigned_user_key = ndb.Key(urlsafe=assigned_user_key)
+						task.assigned_to = assigned_user_key
+					elif self.request.get('assign_user') == 'None':
+						task.assigned_to = None
 
-	                    
-	                    
-	                    if self.request.get('assign_user') != 'None':
-	                        assigned_user_key = self.request.get('assign_user')
-	                        assigned_user_key = ndb.Key(urlsafe=assigned_user_key)
-	                        task.assigned_to = assigned_user_key
-	                    elif self.request.get('assign_user') == 'None':
-	                    	task.assigned_to = None
+					checked_value = self.request.get('completed')
+					if checked_value == 'checked':
+						task.checked = True
+						task.completion_date = datetime.now() + timedelta(hours=1)
+					else:
+						task.checked = False
+						task.completion_date = None
 
-	                    checked_value = self.request.get('completed')
-	                    if checked_value == 'checked':
-	                    	task.checked = True
-	                    	task.completion_date = datetime.now()
-	                    else:
-	                    	task.checked = False
-	                    	task.completion_date = None
+					today_date = datetime.today().strftime("%Y-%m-%d")
+					today = datetime.strptime(today_date,"%Y-%m-%d")
 
-	                    today_date = datetime.today().strftime("%Y-%m-%d")
-	                    today = datetime.strptime(today_date,"%Y-%m-%d")
-
-	                    # if olddate == newdate
-	                    # 	no change in date so no check. just put() and redirect
-	                    # else
-	                    # 	check if newdate < today. if yes, dont put, othwesise,put adn redirect
-
-	                    if datetime.strptime(self.request.get('due_date'), "%Y-%m-%d") >= today:
-	                    	task.due_date = datetime.strptime(self.request.get('due_date'), "%Y-%m-%d")
-	                    	task_key =task.put()
-	                    	msg = "Task editted"
-	                    	self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
-	                    else:
-	                    	msg = "Enter a valid due date"
-	                    	self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
-
+					new_due_date_ = datetime.strptime(self.request.get('due_date'), "%Y-%m-%d")
+					if task.due_date == new_due_date_:
+						task_key =task.put()
+						msg = "Task is edited"
+						self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
+					else:
+						if new_due_date_ >= today:
+							task.due_date = new_due_date_
+							task_key =task.put()
+							msg = "Task edited"
+							self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
+						else:
+							msg = "Enter a valid due date"
+							self.redirect('/edit?current_tb_key=' + str(current_tb_key.urlsafe())+'&task_key=' + str(task_key.urlsafe()) +'&msg=' +msg)
 
 		if self.request.get('button') == 'Back':
 			self.redirect('/display?key_name=' + str(current_tb_key.urlsafe()))
